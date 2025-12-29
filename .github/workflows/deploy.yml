@@ -20,58 +20,58 @@ jobs:
       - name: "[3] Compilar e gerar o JAR"
         run: mvn clean package -DskipTests
 
-      - name: "[4] Configurar SSH e copiar JAR para VPS"
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          eval "$(ssh-agent -s)"
-          ssh-add ~/.ssh/id_ed25519
-          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
-          ssh $VPS_USER@$VPS_HOST "sudo mkdir -p /opt/rdv-performance-api-spring"
-          scp ./target/rdv-performance-api-spring-0.0.1-SNAPSHOT.jar $VPS_USER@$VPS_HOST:/opt/rdv-performance-api-spring/
-
-      - name: "[5] Reiniciar serviço na VPS"
-        env:
-          VPS_USER: ${{ secrets.VPS_USER }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-        run: |
-          ssh $VPS_USER@$VPS_HOST << 'EOF'
-          sudo chown -R $USER:$USER /opt/rdv-performance-api-spring
-
-          # Instalar Java se não estiver instalado
-          if ! command -v java &> /dev/null
-          then
-              sudo apt update
-              sudo apt install -y openjdk-21-jdk
-          fi
-
-          # Criar o serviço systemd caso não exista
-          echo "[Unit]
-          Description=Spring Boot API
-          After=network.target
-
-          [Service]
-          User=root
-          WorkingDirectory=/opt/rdv-performance-api-spring
-          EnvironmentFile=/etc/environment
-          ExecStart=/usr/bin/java -jar /opt/rdv-performance-api-spring/rdv-performance-api-spring-0.0.1-SNAPSHOT.jar --server.ssl.key-store=file:/opt/rdv-performance-api-spring/keystore.p12 --server.ssl.key-store-password=${SPRING_SSL_PASSWORD}
-          SuccessExitStatus=143
-          Restart=always
-          RestartSec=5
-          StandardOutput=journal
-          StandardError=journal
-
-          [Install]
-          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/rdv-performance-api-spring.service
-
-          # Aplicar configurações do serviço
-          sudo systemctl daemon-reload
-          sudo systemctl enable rdv-performance-api-spring.service
-          sudo systemctl restart rdv-performance-api-spring.service
-          EOF
+#      - name: "[4] Configurar SSH e copiar JAR para VPS"
+#        env:
+#          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+#          VPS_USER: ${{ secrets.VPS_USER }}
+#          VPS_HOST: ${{ secrets.VPS_HOST }}
+#        run: |
+#          mkdir -p ~/.ssh
+#          echo "${{ secrets.SSH_PRIVATE_KEY }}" | tr -d '\r' > ~/.ssh/id_ed25519
+#          chmod 600 ~/.ssh/id_ed25519
+#          eval "$(ssh-agent -s)"
+#          ssh-add ~/.ssh/id_ed25519
+#          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+#          ssh $VPS_USER@$VPS_HOST "sudo mkdir -p /opt/rdv-performance-api-spring"
+#          scp ./target/rdv-performance-api-spring-0.0.1-SNAPSHOT.jar $VPS_USER@$VPS_HOST:/opt/rdv-performance-api-spring/
+#
+#      - name: "[5] Reiniciar serviço na VPS"
+#        env:
+#          VPS_USER: ${{ secrets.VPS_USER }}
+#          VPS_HOST: ${{ secrets.VPS_HOST }}
+#          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+#        run: |
+#          ssh $VPS_USER@$VPS_HOST << 'EOF'
+#          sudo chown -R $USER:$USER /opt/rdv-performance-api-spring
+#
+#          # Instalar Java se não estiver instalado
+#          if ! command -v java &> /dev/null
+#          then
+#              sudo apt update
+#              sudo apt install -y openjdk-21-jdk
+#          fi
+#
+#          # Criar o serviço systemd caso não exista
+#          echo "[Unit]
+#          Description=Spring Boot API
+#          After=network.target
+#
+#          [Service]
+#          User=root
+#          WorkingDirectory=/opt/rdv-performance-api-spring
+#          EnvironmentFile=/etc/environment
+#          ExecStart=/usr/bin/java -jar /opt/rdv-performance-api-spring/rdv-performance-api-spring-0.0.1-SNAPSHOT.jar --server.ssl.key-store=file:/opt/rdv-performance-api-spring/keystore.p12 --server.ssl.key-store-password=${SPRING_SSL_PASSWORD}
+#          SuccessExitStatus=143
+#          Restart=always
+#          RestartSec=5
+#          StandardOutput=journal
+#          StandardError=journal
+#
+#          [Install]
+#          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/rdv-performance-api-spring.service
+#
+#          # Aplicar configurações do serviço
+#          sudo systemctl daemon-reload
+#          sudo systemctl enable rdv-performance-api-spring.service
+#          sudo systemctl restart rdv-performance-api-spring.service
+#          EOF
