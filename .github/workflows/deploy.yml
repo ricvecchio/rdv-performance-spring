@@ -32,8 +32,8 @@ jobs:
           eval "$(ssh-agent -s)"
           ssh-add ~/.ssh/id_ed25519
           ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
-          ssh $VPS_USER@$VPS_HOST "sudo mkdir -p /opt/transp-api-crud-spring"
-          scp ./target/transp-api-crud-spring-0.0.1-SNAPSHOT.jar $VPS_USER@$VPS_HOST:/opt/transp-api-crud-spring/
+          ssh $VPS_USER@$VPS_HOST "sudo mkdir -p /opt/rdv-performance-api-spring"
+          scp ./target/rdv-performance-api-spring-0.0.1-SNAPSHOT.jar $VPS_USER@$VPS_HOST:/opt/rdv-performance-api-spring/
 
       - name: "[5] Reiniciar serviço na VPS"
         env:
@@ -42,7 +42,7 @@ jobs:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
           ssh $VPS_USER@$VPS_HOST << 'EOF'
-          sudo chown -R $USER:$USER /opt/transp-api-crud-spring
+          sudo chown -R $USER:$USER /opt/rdv-performance-api-spring
 
           # Instalar Java se não estiver instalado
           if ! command -v java &> /dev/null
@@ -58,9 +58,9 @@ jobs:
 
           [Service]
           User=root
-          WorkingDirectory=/opt/transp-api-crud-spring
+          WorkingDirectory=/opt/rdv-performance-api-spring
           EnvironmentFile=/etc/environment
-          ExecStart=/usr/bin/java -jar /opt/transp-api-crud-spring/transp-api-crud-spring-0.0.1-SNAPSHOT.jar --server.ssl.key-store=file:/opt/transp-api-crud-spring/keystore.p12 --server.ssl.key-store-password=${SPRING_SSL_PASSWORD}
+          ExecStart=/usr/bin/java -jar /opt/rdv-performance-api-spring/rdv-performance-api-spring-0.0.1-SNAPSHOT.jar --server.ssl.key-store=file:/opt/rdv-performance-api-spring/keystore.p12 --server.ssl.key-store-password=${SPRING_SSL_PASSWORD}
           SuccessExitStatus=143
           Restart=always
           RestartSec=5
@@ -68,10 +68,10 @@ jobs:
           StandardError=journal
 
           [Install]
-          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/transp-api-crud-spring.service
+          WantedBy=multi-user.target" | sudo tee /etc/systemd/system/rdv-performance-api-spring.service
 
           # Aplicar configurações do serviço
           sudo systemctl daemon-reload
-          sudo systemctl enable transp-api-crud-spring.service
-          sudo systemctl restart transp-api-crud-spring.service
+          sudo systemctl enable rdv-performance-api-spring.service
+          sudo systemctl restart rdv-performance-api-spring.service
           EOF

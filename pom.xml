@@ -8,10 +8,10 @@
 		<version>3.2.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.transportadora</groupId>
-	<artifactId>transp-api-crud-spring</artifactId>
+	<groupId>com.rdv.performance</groupId>
+	<artifactId>rdv-performance-api-spring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>transp-api-crud-spring</name>
+	<name>rdv-performance-api-spring</name>
 	<description>Projeto com CRUD Spring + Angular</description>
 	<properties>
 		<java.version>21</java.version>
