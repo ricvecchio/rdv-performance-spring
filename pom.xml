@@ -12,7 +12,7 @@
 	<artifactId>rdv-performance-api-spring</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rdv-performance-api-spring</name>
-	<description>Projeto com CRUD Spring + Angular</description>
+	<description>Projeto com Spring + Swift (IOS)</description>
 	<properties>
 		<java.version>21</java.version>
 	</properties>
